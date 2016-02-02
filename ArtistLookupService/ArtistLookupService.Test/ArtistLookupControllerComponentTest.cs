@@ -37,7 +37,7 @@ namespace ArtistLookupService.Test
                 var response = await client.GetAsync($"api/artistlookup/{mbid}");
                 var result = await response.Content.ReadAsJsonAsync<Artist>();
 
-                result.Description.Should().NotBeEmpty();
+                result.Should().NotBeNull();
             }
         }
     }

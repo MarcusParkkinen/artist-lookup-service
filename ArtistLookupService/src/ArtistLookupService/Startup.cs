@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.Builder;
+﻿using ArtistLookupService.Providers;
+using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,10 @@ namespace ArtistLookupService
             services.AddApplicationInsightsTelemetry(Configuration);
 
             services.AddMvc();
+
+            services.AddTransient<IArtistProvider, MusicBrainzArtistProvider>();
+            services.AddTransient<IDescriptionProvider, DescriptionProvider>();
+            services.AddTransient<ICoverArtUrlProvider, CoverArtUrlProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
