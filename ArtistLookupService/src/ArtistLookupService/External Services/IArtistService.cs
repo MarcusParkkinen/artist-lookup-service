@@ -1,8 +1,8 @@
 ﻿using ArtistLookupService.Domain;
 
-namespace ArtistLookupService.Providers
+namespace ArtistLookupService.External_Services
 {
-    public interface IArtistProvider
+    public interface IArtistService
     {
         Artist Get(string mbid);
     }

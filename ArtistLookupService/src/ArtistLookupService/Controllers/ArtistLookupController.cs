@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using ArtistLookupService.Domain;
-using ArtistLookupService.Providers;
+using ArtistLookupService.External_Services;
 using Microsoft.AspNet.Mvc;
 
 namespace ArtistLookupService.Controllers
@@ -8,11 +8,11 @@ namespace ArtistLookupService.Controllers
     [Route("api/[controller]")]
     public class ArtistLookupController : Controller
     {
-        private readonly IArtistProvider _artistProvider;
+        private readonly IArtistService _artistService;
 
-        public ArtistLookupController(IArtistProvider artistProvider)
+        public ArtistLookupController(IArtistService artistService)
         {
-            _artistProvider = artistProvider;
+            _artistService = artistService;
         }
 
         [HttpGet("{mbid}")]
@@ -24,7 +24,7 @@ namespace ArtistLookupService.Controllers
                 return null;
             }
 
-            return _artistProvider.Get(mbid);
+            return _artistService.Get(mbid);
         }
     }
 }
