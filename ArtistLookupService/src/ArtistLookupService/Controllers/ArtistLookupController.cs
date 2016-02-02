@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Net;
+using ArtistLookupService.Domain;
 using Microsoft.AspNet.Mvc;
 
 namespace ArtistLookupService.Controllers
@@ -7,10 +7,19 @@ namespace ArtistLookupService.Controllers
     [Route("api/[controller]")]
     public class ArtistLookupController : Controller
     {
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("{mbid}")]
+        public Artist Get(string mbid)
         {
-            return new List<string>{ "Artist lookup" };
+            if (string.IsNullOrEmpty(mbid))
+            {
+                Response.StatusCode = (int) HttpStatusCode.NotFound;
+                return null;
+            }
+
+            return new Artist()
+            {
+                Description = "Some description"
+            };
         }
     }
 }

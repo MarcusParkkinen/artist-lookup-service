@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "1.0.0-*",
   "description": "ArtistLookupService.Test Class Library",
   "authors": [ "Markusi" ],
@@ -23,6 +23,7 @@
     }
   },
   "dependencies": {
+    "FluentAssertions": "4.2.1",
     "xunit.runner.visualstudio": "2.1.0"
   },
   "commands": {
