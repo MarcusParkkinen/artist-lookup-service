@@ -1,5 +1,7 @@
-﻿using ArtistLookupService.Domain;
-using ArtistLookupService.External_Services;
+﻿using System;
+using System.Net;
+using ArtistLookupService.External_Service_Interfaces;
+using ArtistLookupService.Model;
 using Microsoft.AspNet.Mvc;
 
 namespace ArtistLookupService.Controllers
@@ -7,17 +9,26 @@ namespace ArtistLookupService.Controllers
     [Route("api/[controller]")]
     public class ArtistLookupController : Controller
     {
-        private readonly IArtistService _artistService;
+        private readonly IArtistDetailsService _artistDetailsService;
 
-        public ArtistLookupController(IArtistService artistService)
+        public ArtistLookupController(IArtistDetailsService artistDetailsService)
         {
-            _artistService = artistService;
+            _artistDetailsService = artistDetailsService;
         }
 
         [HttpGet("{mbid}")]
         public Artist Get(string mbid)
         {
-            return _artistService.Get(mbid);
+            try
+            {
+                return _artistDetailsService.Get(mbid);
+            }
+            catch (Exception)
+            {
+                Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+            }
+
+            return null;
         }
     }
 }

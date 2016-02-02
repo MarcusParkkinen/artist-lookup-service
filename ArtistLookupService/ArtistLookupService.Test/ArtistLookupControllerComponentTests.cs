@@ -1,6 +1,8 @@
-﻿using System.Net;
-using ArtistLookupService.Domain;
-using ArtistLookupService.External_Services;
+﻿using System;
+using System.Net;
+using ArtistLookupService.Extensions;
+using ArtistLookupService.External_Service_Interfaces;
+using ArtistLookupService.Model;
 using ArtistLookupService.Test.Configuration;
 using ArtistLookupService.Test.Extensions;
 using FluentAssertions;
@@ -14,7 +16,7 @@ namespace ArtistLookupService.Test
     public class ArtistLookupControllerComponentTests
     {
         private readonly Fixture _fixture;
-        private readonly Mock<IArtistService> _mockedArtistService;
+        private readonly Mock<IArtistDetailsService> _mockedArtistService;
         private readonly Mock<ICoverArtUrlService> _mockedCoverArtUrlService;
         private readonly Mock<IDescriptionService> _mockedDescriptionService;
 
@@ -22,7 +24,7 @@ namespace ArtistLookupService.Test
         {
             _fixture = new Fixture();
 
-            _mockedArtistService = new Mock<IArtistService>();
+            _mockedArtistService = new Mock<IArtistDetailsService>();
             _mockedCoverArtUrlService = new Mock<ICoverArtUrlService>();
             _mockedDescriptionService = new Mock<IDescriptionService>();
 
@@ -44,6 +46,20 @@ namespace ArtistLookupService.Test
                 var response = await client.GetAsync("api/artistlookup");
 
                 response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            }
+        }
+
+        [Fact]
+        public async void Get_Returns_Error_500_On_Exception()
+        {
+            _mockedArtistService.Setup(m => m.Get(It.IsAny<string>())).Throws(new Exception());
+            var mbid = _fixture.Create<string>();
+
+            using (var client = CreateTestServer().CreateClient())
+            {
+                var response = await client.GetAsync($"api/artistlookup/{mbid}");
+
+                response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
             }
         }
 

@@ -2,16 +2,18 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using ArtistLookupService.Domain;
+using ArtistLookupService.Extensions;
+using ArtistLookupService.External_Service_Interfaces;
+using ArtistLookupService.Model;
 
-namespace ArtistLookupService.External_Services
+namespace ArtistLookupService.External_Service_Clients
 {
-    public class MusicBrainzArtistService : IArtistService
+    public class MusicBrainzService : IArtistDetailsService
     {
         private readonly HttpClient _client;
         private const string Uri = "http://musicbrainz.org/ws/2/artist/";
 
-        public MusicBrainzArtistService(HttpClient httpClient, IDescriptionService descriptionService, ICoverArtUrlService coverArtUrlService)
+        public MusicBrainzService(HttpClient httpClient, IDescriptionService descriptionService, ICoverArtUrlService coverArtUrlService)
         {
             _client = httpClient;
             _client.BaseAddress = new Uri(Uri);
@@ -27,14 +29,14 @@ namespace ArtistLookupService.External_Services
         {
             var requestUri = CreateRequestUri(mbid);
             var response = await _client.GetAsync(requestUri);
-            var result = await response.Content.ReadAsStringAsync();
+            var result = await response.Content.ReadAsJsonAsync<Artist>();
 
-            return null;
+            return result;
         }
 
         private static string CreateRequestUri(string mbid)
         {
-            return $"{Uri}{mbid}&inc=url-rels+release-groups";
+            return $"{Uri}{mbid}?&inc=url-rels+release-groups";
         }
     }
 }

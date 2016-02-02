@@ -1,5 +1,5 @@
 ﻿using ArtistLookupService.Extensions;
-using ArtistLookupService.External_Services;
+using ArtistLookupService.External_Service_Interfaces;
 using ArtistLookupService.Test.Extensions;
 using Microsoft.AspNet.TestHost;
 
@@ -7,7 +7,7 @@ namespace ArtistLookupService.Test.Configuration
 {
     public class TestServerFactory
     {
-        public static TestServer CreateTestServerWith(IArtistService artistService,
+        public static TestServer CreateTestServerWith(IArtistDetailsService artistService,
             ICoverArtUrlService coverArtUrlService,
             IDescriptionService descriptionService)
         {
@@ -18,7 +18,7 @@ namespace ArtistLookupService.Test.Configuration
             return new TestServer(builder);
         }
 
-        public static TestServer CreateTestServer(IArtistService artistService = null,
+        public static TestServer CreateTestServer(IArtistDetailsService artistService = null,
             ICoverArtUrlService coverArtUrlService = null,
             IDescriptionService descriptionService = null)
         {

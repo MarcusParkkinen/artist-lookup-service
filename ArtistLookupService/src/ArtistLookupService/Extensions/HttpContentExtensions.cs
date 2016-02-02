@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace ArtistLookupService.Test.Extensions
+namespace ArtistLookupService.Extensions
 {
     public static class HttpContentExtensions
     {
