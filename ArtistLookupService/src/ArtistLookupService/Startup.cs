@@ -1,4 +1,5 @@
-﻿using ArtistLookupService.Extensions;
+﻿using System.Net.Http;
+using ArtistLookupService.Extensions;
 using ArtistLookupService.External_Services;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
@@ -25,6 +26,7 @@ namespace ArtistLookupService
         {
             services.AddMvc();
 
+            services.AddInstance(new HttpClient());
             services.AddTransient<IArtistService, MusicBrainzArtistService>();
             services.AddTransient<IDescriptionService, DescriptionService>();
             services.AddTransient<ICoverArtUrlService, CoverArtUrlService>();

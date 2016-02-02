@@ -1,5 +1,4 @@
-﻿using System.Net;
-using ArtistLookupService.Domain;
+﻿using ArtistLookupService.Domain;
 using ArtistLookupService.External_Services;
 using Microsoft.AspNet.Mvc;
 
@@ -18,12 +17,6 @@ namespace ArtistLookupService.Controllers
         [HttpGet("{mbid}")]
         public Artist Get(string mbid)
         {
-            if (string.IsNullOrEmpty(mbid))
-            {
-                Response.StatusCode = (int) HttpStatusCode.NotFound;
-                return null;
-            }
-
             return _artistService.Get(mbid);
         }
     }
