@@ -2,6 +2,7 @@
 using ArtistLookupService.Extensions;
 using ArtistLookupService.External_Service_Clients;
 using ArtistLookupService.External_Service_Interfaces;
+using ArtistLookupService.Logging;
 using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,10 +15,10 @@ namespace ArtistLookupService
     {
         public Startup(IHostingEnvironment env)
         {
-            // Set up configuration sources.
             var builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
 
             builder.AddEnvironmentVariables();
+
             Configuration = builder.Build().ReloadOnChanged("appsettings.json");
         }
 
@@ -25,12 +26,12 @@ namespace ArtistLookupService
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddDefaultServices();
 
-            services.AddInstance(new HttpClient());
             services.AddTransient<IArtistDetailsService, MusicBrainzService>();
             services.AddTransient<IDescriptionService, DescriptionService>();
             services.AddTransient<ICoverArtUrlService, CoverArtUrlService>();
+            services.AddTransient<IExceptionLogger, ExceptionLogger>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

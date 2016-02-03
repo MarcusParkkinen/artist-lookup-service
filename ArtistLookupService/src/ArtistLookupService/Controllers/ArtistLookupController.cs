@@ -1,6 +1,5 @@
-﻿using System;
-using System.Net;
-using ArtistLookupService.External_Service_Interfaces;
+﻿using ArtistLookupService.External_Service_Interfaces;
+using ArtistLookupService.Filters;
 using ArtistLookupService.Model;
 using Microsoft.AspNet.Mvc;
 
@@ -17,18 +16,11 @@ namespace ArtistLookupService.Controllers
         }
 
         [HttpGet("{mbid}")]
+        [ServiceFilter(typeof(LogExceptionFilter))]
+        [ServiceFilter(typeof(ExceptionResponseFilter))]
         public Artist Get(string mbid)
         {
-            try
-            {
-                return _artistDetailsService.Get(mbid);
-            }
-            catch (Exception)
-            {
-                Response.StatusCode = (int) HttpStatusCode.InternalServerError;
-            }
-
-            return null;
+            return _artistDetailsService.Get(mbid);
         }
     }
 }

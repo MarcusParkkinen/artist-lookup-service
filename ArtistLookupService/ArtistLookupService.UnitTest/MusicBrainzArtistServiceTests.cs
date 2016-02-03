@@ -19,12 +19,10 @@ namespace ArtistLookupService.UnitTest
         {
             _fixture = new Fixture();
 
-            var mockedHttpClient = new Mock<HttpClient>();
             var mockedDescriptionService = new Mock<IDescriptionService>();
             var mockedCoverArtUrlService = new Mock<ICoverArtUrlService>();
 
-            _sut = new MusicBrainzService(mockedHttpClient.Object, mockedDescriptionService.Object,
-                mockedCoverArtUrlService.Object);
+            _sut = new MusicBrainzService(mockedDescriptionService.Object, mockedCoverArtUrlService.Object);
         }
     }
 }

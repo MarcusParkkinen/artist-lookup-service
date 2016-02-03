@@ -2,10 +2,11 @@
 using System.Net;
 using ArtistLookupService.Extensions;
 using ArtistLookupService.External_Service_Interfaces;
+using ArtistLookupService.Logging;
 using ArtistLookupService.Model;
 using ArtistLookupService.Test.Configuration;
-using ArtistLookupService.Test.Extensions;
 using FluentAssertions;
+using Microsoft.AspNet.Http;
 using Microsoft.AspNet.TestHost;
 using Moq;
 using Ploeh.AutoFixture;
@@ -19,6 +20,7 @@ namespace ArtistLookupService.Test
         private readonly Mock<IArtistDetailsService> _mockedArtistService;
         private readonly Mock<ICoverArtUrlService> _mockedCoverArtUrlService;
         private readonly Mock<IDescriptionService> _mockedDescriptionService;
+        private readonly Mock<IExceptionLogger> _mockedExceptionLogger;
 
         public ArtistLookupControllerComponentTests()
         {
@@ -27,15 +29,17 @@ namespace ArtistLookupService.Test
             _mockedArtistService = new Mock<IArtistDetailsService>();
             _mockedCoverArtUrlService = new Mock<ICoverArtUrlService>();
             _mockedDescriptionService = new Mock<IDescriptionService>();
+            _mockedExceptionLogger = new Mock<IExceptionLogger>();
 
-            _mockedArtistService.Setup(m => m.Get(It.IsAny<string>())).Returns((string mbid) => new Artist {Id = mbid});
+            _mockedArtistService.Setup(m => m.Get(It.IsAny<string>())).Returns(_fixture.Create<Artist>());
         }
 
         private TestServer CreateTestServer()
         {
             return TestServerFactory.CreateTestServerWith(_mockedArtistService.Object,
                 _mockedCoverArtUrlService.Object,
-                _mockedDescriptionService.Object);
+                _mockedDescriptionService.Object,
+                _mockedExceptionLogger.Object);
         }
 
         [Fact]
@@ -64,6 +68,20 @@ namespace ArtistLookupService.Test
         }
 
         [Fact]
+        public async void Get_Calls_Logger_On_Exception()
+        {
+            _mockedArtistService.Setup(m => m.Get(It.IsAny<string>())).Throws(new Exception());
+            var mbid = _fixture.Create<string>();
+
+            using (var client = CreateTestServer().CreateClient())
+            {
+                await client.GetAsync($"api/artistlookup/{mbid}");
+                
+                _mockedExceptionLogger.Verify(m => m.Log(It.IsAny<HttpRequest>(), It.IsAny<Exception>()), Times.Once());
+            }
+        }
+
+        [Fact]
         public async void Get_With_Non_Empty_Mbid_Returns_Artist()
         {
             var mbid = _fixture.Create<string>();
@@ -74,7 +92,6 @@ namespace ArtistLookupService.Test
                 var artist = await response.Content.ReadAsJsonAsync<Artist>();
 
                 artist.Should().NotBeNull();
-                artist.Id.Should().Be(mbid);
             }
         }
     }

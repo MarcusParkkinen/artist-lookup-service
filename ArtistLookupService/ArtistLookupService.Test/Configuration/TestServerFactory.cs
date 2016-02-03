@@ -1,7 +1,8 @@
 ﻿using ArtistLookupService.Extensions;
 using ArtistLookupService.External_Service_Interfaces;
-using ArtistLookupService.Test.Extensions;
+using ArtistLookupService.Logging;
 using Microsoft.AspNet.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArtistLookupService.Test.Configuration
 {
@@ -9,10 +10,18 @@ namespace ArtistLookupService.Test.Configuration
     {
         public static TestServer CreateTestServerWith(IArtistDetailsService artistService,
             ICoverArtUrlService coverArtUrlService,
-            IDescriptionService descriptionService)
+            IDescriptionService descriptionService,
+            IExceptionLogger exceptionLogger)
         {
-            var builder = TestServer.CreateBuilder()
-                .UseServices(services => services.ConfigureServices(artistService, coverArtUrlService, descriptionService))
+            var builder = TestServer.CreateBuilder().UseServices(services =>
+                {
+                    services.AddDefaultServices();
+
+                    services.AddInstance(artistService);
+                    services.AddInstance(coverArtUrlService);
+                    services.AddInstance(descriptionService);
+                    services.AddInstance(exceptionLogger);
+                })
                 .UseStartup(app => app.UseDefaultConfiguration());
 
             return new TestServer(builder);

@@ -13,10 +13,12 @@ namespace ArtistLookupService.External_Service_Clients
         private readonly HttpClient _client;
         private const string Uri = "http://musicbrainz.org/ws/2/artist/";
 
-        public MusicBrainzService(HttpClient httpClient, IDescriptionService descriptionService, ICoverArtUrlService coverArtUrlService)
+        public MusicBrainzService(IDescriptionService descriptionService, ICoverArtUrlService coverArtUrlService)
         {
-            _client = httpClient;
-            _client.BaseAddress = new Uri(Uri);
+            _client = new HttpClient
+            {
+                BaseAddress = new Uri(Uri)
+            };
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
