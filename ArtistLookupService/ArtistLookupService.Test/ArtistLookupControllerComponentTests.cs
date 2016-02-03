@@ -67,7 +67,7 @@ namespace ArtistLookupService.Test
         }
 
         [Fact]
-        public async void Get_With_Non_Empty_Mbid_Returns_Artist()
+        public async void Get_With_Mbid_For_Existing_Artist_Returns_Artist()
         {
             var mbid = _fixture.Create<string>();
             var client = CreateClient();
@@ -76,6 +76,19 @@ namespace ArtistLookupService.Test
             var artist = await response.Content.ReadAsJsonAsync<Artist>();
 
             artist.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async void Get_With_Mbid_Without_Artist_Returns_404()
+        {
+            _mockedArtistService.Setup(m => m.Get(It.IsAny<string>())).Returns(() => null);
+
+            var mbid = _fixture.Create<string>();
+            var client = CreateClient();
+
+            var response = await client.GetAsync($"api/artistlookup/{mbid}");
+
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         private HttpClient CreateClient()

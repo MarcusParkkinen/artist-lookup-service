@@ -16,6 +16,7 @@ namespace ArtistLookupService.Wrappers
         public HttpClientWrapper()
         {
             _client = new HttpClient();
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public Task<HttpResponseMessage> GetAsync(string uri)

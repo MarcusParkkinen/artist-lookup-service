@@ -18,6 +18,7 @@ namespace ArtistLookupService.Controllers
         [HttpGet("{mbid}")]
         [ServiceFilter(typeof(LogExceptionFilter))]
         [ServiceFilter(typeof(ExceptionResponseFilter))]
+        [ServiceFilter(typeof(NullFilter))]
         public Artist Get(string mbid)
         {
             return _artistDetailsService.Get(mbid);

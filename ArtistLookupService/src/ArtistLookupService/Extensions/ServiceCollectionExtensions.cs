@@ -11,6 +11,7 @@ namespace ArtistLookupService.Extensions
 
             services.AddScoped<LogExceptionFilter>();
             services.AddScoped<ExceptionResponseFilter>();
+            services.AddScoped<NullFilter>();
         }
     }
 }

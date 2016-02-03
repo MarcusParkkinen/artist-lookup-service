@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Net.Http.Headers;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using ArtistLookupService.Extensions;
 using ArtistLookupService.External_Service_Interfaces;
@@ -17,7 +18,6 @@ namespace ArtistLookupService.External_Service_Clients
         {
             _client = httpClient;
             _client.BaseAddress = new Uri(Uri);
-            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public Artist Get(string mbid)
@@ -29,9 +29,18 @@ namespace ArtistLookupService.External_Service_Clients
         {
             var requestUri = CreateRequestUri(mbid);
             var response = await _client.GetAsync(requestUri);
-            var result = await response.Content.ReadAsJsonAsync<Artist>();
 
-            return result;
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            return await DeserializeContent(response);
+        }
+
+        private static async Task<Artist> DeserializeContent(HttpResponseMessage response)
+        {
+            return await response.Content.ReadAsJsonAsync<Artist>();
         }
 
         private static string CreateRequestUri(string mbid)
