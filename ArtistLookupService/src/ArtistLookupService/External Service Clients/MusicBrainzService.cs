@@ -1,24 +1,22 @@
 ﻿using System;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ArtistLookupService.Extensions;
 using ArtistLookupService.External_Service_Interfaces;
 using ArtistLookupService.Model;
+using ArtistLookupService.Wrappers;
 
 namespace ArtistLookupService.External_Service_Clients
 {
     public class MusicBrainzService : IArtistDetailsService
     {
-        private readonly HttpClient _client;
+        private readonly IHttpClientWrapper _client;
         private const string Uri = "http://musicbrainz.org/ws/2/artist/";
 
-        public MusicBrainzService(IDescriptionService descriptionService, ICoverArtUrlService coverArtUrlService)
+        public MusicBrainzService(IHttpClientWrapper httpClient, IDescriptionService descriptionService, ICoverArtUrlService coverArtUrlService)
         {
-            _client = new HttpClient
-            {
-                BaseAddress = new Uri(Uri)
-            };
+            _client = httpClient;
+            _client.BaseAddress = new Uri(Uri);
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 

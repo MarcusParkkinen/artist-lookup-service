@@ -25,7 +25,7 @@
     "FluentAssertions": "4.2.1",
     "xunit.runner.visualstudio": "2.1.0",
     "AutoFixture": "3.40.0",
-    "Moq": "3.1.416.3"
+    "Moq": "4.2.1510.2205"
   },
 
   "commands": {

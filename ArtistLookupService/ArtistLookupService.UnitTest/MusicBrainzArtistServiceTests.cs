@@ -1,12 +1,8 @@
-﻿using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using ArtistLookupService.External_Service_Clients;
+﻿using ArtistLookupService.External_Service_Clients;
 using ArtistLookupService.External_Service_Interfaces;
+using ArtistLookupService.Wrappers;
 using Moq;
-using Moq.Protected;
 using Ploeh.AutoFixture;
-using Xunit;
 
 namespace ArtistLookupService.UnitTest
 {
@@ -19,10 +15,11 @@ namespace ArtistLookupService.UnitTest
         {
             _fixture = new Fixture();
 
+            var mockedHttpClient = new Mock<IHttpClientWrapper>();
             var mockedDescriptionService = new Mock<IDescriptionService>();
             var mockedCoverArtUrlService = new Mock<ICoverArtUrlService>();
 
-            _sut = new MusicBrainzService(mockedDescriptionService.Object, mockedCoverArtUrlService.Object);
+            _sut = new MusicBrainzService(mockedHttpClient.Object, mockedDescriptionService.Object, mockedCoverArtUrlService.Object);
         }
     }
 }

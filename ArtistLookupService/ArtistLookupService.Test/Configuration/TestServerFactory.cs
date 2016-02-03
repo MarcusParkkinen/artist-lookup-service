@@ -9,8 +9,6 @@ namespace ArtistLookupService.Test.Configuration
     public class TestServerFactory
     {
         public static TestServer CreateTestServerWith(IArtistDetailsService artistService,
-            ICoverArtUrlService coverArtUrlService,
-            IDescriptionService descriptionService,
             IExceptionLogger exceptionLogger)
         {
             var builder = TestServer.CreateBuilder().UseServices(services =>
@@ -18,8 +16,6 @@ namespace ArtistLookupService.Test.Configuration
                     services.AddDefaultServices();
 
                     services.AddInstance(artistService);
-                    services.AddInstance(coverArtUrlService);
-                    services.AddInstance(descriptionService);
                     services.AddInstance(exceptionLogger);
                 })
                 .UseStartup(app => app.UseDefaultConfiguration());
