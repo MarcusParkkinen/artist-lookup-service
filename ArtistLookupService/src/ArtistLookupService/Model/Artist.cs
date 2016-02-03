@@ -13,5 +13,8 @@ namespace ArtistLookupService.Model
 
         [JsonProperty(PropertyName = "release-groups")]
         public List<Album> Albums { get; set; }
+
+        [JsonIgnore]
+        public string WikipediaUrl { get; set; }
     }
 }

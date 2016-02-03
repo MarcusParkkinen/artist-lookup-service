@@ -2,19 +2,22 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using ArtistLookupService.Extensions;
+using ArtistLookupService.Converters;
 using ArtistLookupService.External_Service_Interfaces;
 using ArtistLookupService.Model;
 using ArtistLookupService.Wrappers;
+using Newtonsoft.Json;
 
 namespace ArtistLookupService.External_Service_Clients
 {
     public class MusicBrainzService : IArtistDetailsService
     {
         private readonly IHttpClientWrapper _client;
-        private const string Uri = "http://musicbrainz.org/ws/2/artist/";
+        private const string Uri = "http://musicbrainz.org/ws/2/artist/"; // Include trailing '/'
 
-        public MusicBrainzService(IHttpClientWrapper httpClient, IDescriptionService descriptionService, ICoverArtUrlService coverArtUrlService)
+        public MusicBrainzService(IHttpClientWrapper httpClient,
+            IDescriptionService descriptionService,
+            ICoverArtUrlService coverArtUrlService)
         {
             _client = httpClient;
             _client.BaseAddress = new Uri(Uri);
@@ -35,12 +38,16 @@ namespace ArtistLookupService.External_Service_Clients
                 return null;
             }
 
-            return await DeserializeContent(response);
+            var artist = await DeserializeContent(response);
+
+            return artist;
         }
 
         private static async Task<Artist> DeserializeContent(HttpResponseMessage response)
         {
-            return await response.Content.ReadAsJsonAsync<Artist>();
+            var json = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<Artist>(json, new ArtistConverter());
         }
 
         private static string CreateRequestUri(string mbid)

@@ -17,6 +17,7 @@ namespace ArtistLookupService.Test
 {
     public class ArtistLookupControllerComponentTests
     {
+        private const string Uri = "api/artistlookup";
         private readonly Fixture _fixture;
 
         private readonly Mock<IArtistDetailsService> _mockedArtistService;
@@ -37,7 +38,7 @@ namespace ArtistLookupService.Test
         {
             var client = CreateClient();
 
-            var response = await client.GetAsync("api/artistlookup");
+            var response = await client.GetAsync(Uri);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
@@ -49,7 +50,7 @@ namespace ArtistLookupService.Test
             var client = CreateClient();
             var mbid = _fixture.Create<string>();
 
-            var response = await client.GetAsync($"api/artistlookup/{mbid}");
+            var response = await client.GetAsync($"{Uri}/{mbid}");
 
             response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         }
@@ -61,7 +62,7 @@ namespace ArtistLookupService.Test
             var client = CreateClient();
             var mbid = _fixture.Create<string>();
 
-            await client.GetAsync($"api/artistlookup/{mbid}");
+            await client.GetAsync($"{Uri}/{mbid}");
 
             _mockedExceptionLogger.Verify(m => m.Log(It.IsAny<HttpRequest>(), It.IsAny<Exception>()), Times.Once());
         }
@@ -72,7 +73,7 @@ namespace ArtistLookupService.Test
             var mbid = _fixture.Create<string>();
             var client = CreateClient();
 
-            var response = await client.GetAsync($"api/artistlookup/{mbid}");
+            var response = await client.GetAsync($"{Uri}/{mbid}");
             var artist = await response.Content.ReadAsJsonAsync<Artist>();
 
             artist.Should().NotBeNull();
@@ -86,7 +87,7 @@ namespace ArtistLookupService.Test
             var mbid = _fixture.Create<string>();
             var client = CreateClient();
 
-            var response = await client.GetAsync($"api/artistlookup/{mbid}");
+            var response = await client.GetAsync($"{Uri}/{mbid}");
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
