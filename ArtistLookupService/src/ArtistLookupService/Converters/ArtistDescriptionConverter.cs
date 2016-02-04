@@ -1,11 +1,10 @@
 ﻿using System;
-using ArtistLookupService.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ArtistLookupService.Converters
 {
-    public class ArtistConverter : JsonConverter
+    public class ArtistDescriptionConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
@@ -18,24 +17,17 @@ namespace ArtistLookupService.Converters
 
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof (Artist);
+            return objectType == typeof(string);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var jObject = JObject.Load(reader);
-            var artist = jObject.ToObject<Artist>();
+            var description = jObject.SelectToken(JPathToDescriptionBody);
 
-            var wikipediaUriToken = jObject.SelectToken(JPathToWikipediaUri);
-
-            if (wikipediaUriToken != null)
-            {
-                artist.WikipediaUri = wikipediaUriToken.ToString();
-            }
-
-            return artist;
+            return description?.ToString();
         }
 
-        public string JPathToWikipediaUri => "$..relations[?(@.type=='wikipedia')].url.resource";
+        public string JPathToDescriptionBody=> "$..extract";
     }
 }

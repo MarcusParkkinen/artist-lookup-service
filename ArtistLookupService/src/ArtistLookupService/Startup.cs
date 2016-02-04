@@ -30,7 +30,7 @@ namespace ArtistLookupService
 
             services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
             services.AddTransient<IArtistDetailsService, MusicBrainzService>();
-            services.AddTransient<IDescriptionService, DescriptionService>();
+            services.AddTransient<IDescriptionService, WikipediaDescriptionService>();
             services.AddTransient<ICoverArtUrlService, CoverArtUrlService>();
             services.AddTransient<IExceptionLogger, ExceptionLogger>();
         }

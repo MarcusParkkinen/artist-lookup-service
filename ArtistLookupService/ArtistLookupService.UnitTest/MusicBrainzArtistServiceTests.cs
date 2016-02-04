@@ -34,15 +34,42 @@ namespace ArtistLookupService.UnitTest
         [InlineData(HttpStatusCode.Forbidden)]
         [InlineData(HttpStatusCode.InternalServerError)]
         [InlineData(HttpStatusCode.NotFound)]
+        [InlineData(HttpStatusCode.ServiceUnavailable)]
         public void GetAsync_Returns_Null_On_Non_200_Response_From_MusicBrainz(HttpStatusCode responseFromMusicBrainz)
         {
             var mbid = _fixture.Create<string>();
-            var httpResponseMessage = new HttpResponseMessage { StatusCode = responseFromMusicBrainz };
+            var httpResponseMessage = CreateHttpResponseMessage(responseFromMusicBrainz, mbid);
             _mockedHttpClient.Setup(m => m.GetAsync(It.IsAny<string>())).Returns(Task.FromResult(httpResponseMessage));
 
-            var result = _sut.GetAsync(mbid).Result;
+            var artist = _sut.GetAsync(mbid).Result;
 
-            Assert.Null(result);
+            Assert.Null(artist);
+        }
+
+        [Fact]
+        public void GetAsync_Deserializes_Json_Response_From_MusicBrainz_Into_Artist()
+        {
+            var mbid = _fixture.Create<string>();
+            var httpResponseMessage = CreateHttpResponseMessage(HttpStatusCode.OK, mbid);
+            _mockedHttpClient.Setup(m => m.GetAsync(It.IsAny<string>())).Returns(Task.FromResult(httpResponseMessage));
+
+            var artist = _sut.GetAsync(mbid).Result;
+
+            Assert.NotNull(artist);
+        }
+
+        private static HttpResponseMessage CreateHttpResponseMessage(HttpStatusCode statusCode, string mbid)
+        {
+            return new HttpResponseMessage
+            {
+                StatusCode = statusCode,
+                Content = new StringContent(CreateExampleJsonResponse(mbid))
+            };
+        }
+
+        private static string CreateExampleJsonResponse(string mbid)
+        {
+            return "{\"id\":\"" + mbid + "\",\"gender\":null,\"name\":\"Nirvana\",\"life-span\":null,\"type\":\"Group\",\"release-groups\":[{\"first-release-date\":\"1995\",\"id\":\"ff9dec8b-3674-35a3-aa39-9f9ba3d30b71\",\"title\":\"Twilight of the Gods\",\"primary-type\":\"Album\"}],\"sort-name\":\"Nirvana\"}";
         }
     }
 }

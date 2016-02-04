@@ -15,6 +15,6 @@ namespace ArtistLookupService.Model
         public List<Album> Albums { get; set; }
 
         [JsonIgnore]
-        public string WikipediaUrl { get; set; }
+        public string WikipediaUri { get; set; }
     }
 }

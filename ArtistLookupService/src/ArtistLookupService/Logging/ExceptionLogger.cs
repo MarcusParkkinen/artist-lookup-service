@@ -8,5 +8,9 @@ namespace ArtistLookupService.Logging
         public void Log(HttpRequest request, Exception ex)
         {
         }
+
+        public void Log(Exception ex)
+        {
+        }
     }
 }

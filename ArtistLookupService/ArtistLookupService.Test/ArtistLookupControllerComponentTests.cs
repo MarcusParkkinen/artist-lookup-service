@@ -80,7 +80,7 @@ namespace ArtistLookupService.Test
         }
 
         [Fact]
-        public async void Get_With_Mbid_Without_Artist_Returns_404()
+        public async void Get_With_Mbid_Without_Corresponding_Artist_Returns_404()
         {
             _mockedArtistService.Setup(m => m.Get(It.IsAny<string>())).Returns(() => null);
 

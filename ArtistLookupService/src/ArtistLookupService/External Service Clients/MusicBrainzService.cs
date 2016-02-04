@@ -13,6 +13,8 @@ namespace ArtistLookupService.External_Service_Clients
     public class MusicBrainzService : IArtistDetailsService
     {
         private readonly IHttpClientWrapper _client;
+        private readonly IDescriptionService _descriptionService;
+
         private const string Uri = "http://musicbrainz.org/ws/2/artist/"; // Include trailing '/'
 
         public MusicBrainzService(IHttpClientWrapper httpClient,
@@ -20,6 +22,7 @@ namespace ArtistLookupService.External_Service_Clients
             ICoverArtUrlService coverArtUrlService)
         {
             _client = httpClient;
+            _descriptionService = descriptionService;
             _client.BaseAddress = new Uri(Uri);
         }
 
@@ -40,7 +43,22 @@ namespace ArtistLookupService.External_Service_Clients
 
             var artist = await DeserializeContent(response);
 
+            //PopulateAdditionalDetails(artist);
+
             return artist;
+        }
+
+        private void PopulateAdditionalDetails(Artist artist)
+        {
+            var populateDescriptionTask = PopulateDescription(artist);
+            //var populateAlbumCoversTask = PopulateAlbumCovers(artist);
+
+            Task.WaitAll(populateDescriptionTask);
+        }
+
+        private static async Task PopulateAlbumCovers(Artist artist)
+        {
+            throw new NotImplementedException();
         }
 
         private static async Task<Artist> DeserializeContent(HttpResponseMessage response)
@@ -53,6 +71,13 @@ namespace ArtistLookupService.External_Service_Clients
         private static string CreateRequestUri(string mbid)
         {
             return $"{Uri}{mbid}?&inc=url-rels+release-groups";
+        }
+
+        private async Task PopulateDescription(Artist artist)
+        {
+            var description = await _descriptionService.GetAsync(artist.WikipediaUri);
+
+            artist.Description = description;
         }
     }
 }
