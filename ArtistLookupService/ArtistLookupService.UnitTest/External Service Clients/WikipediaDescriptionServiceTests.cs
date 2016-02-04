@@ -4,14 +4,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using ArtistLookupService.External_Service_Clients;
 using ArtistLookupService.Logging;
-using ArtistLookupService.Wrappers;
 using ArtistLookupService.UnitTest.Extensions;
+using ArtistLookupService.Wrappers;
 using FluentAssertions;
 using Moq;
 using Ploeh.AutoFixture;
 using Xunit;
 
-namespace ArtistLookupService.UnitTest
+namespace ArtistLookupService.UnitTest.External_Service_Clients
 {
     public class WikipediaDescriptionServiceTests
     {

@@ -48,7 +48,7 @@ namespace ArtistLookupService.External_Service_Clients
 
             var artist = await DeserializeContent(response);
 
-            //PopulateAdditionalDetails(artist);
+            PopulateAdditionalDetails(artist);
 
             return artist;
         }

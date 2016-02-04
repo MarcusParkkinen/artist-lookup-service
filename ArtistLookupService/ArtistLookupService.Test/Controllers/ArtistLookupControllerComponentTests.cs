@@ -13,7 +13,7 @@ using Moq;
 using Ploeh.AutoFixture;
 using Xunit;
 
-namespace ArtistLookupService.Test
+namespace ArtistLookupService.ComponentTest.Controllers
 {
     public class ArtistLookupControllerComponentTests
     {
