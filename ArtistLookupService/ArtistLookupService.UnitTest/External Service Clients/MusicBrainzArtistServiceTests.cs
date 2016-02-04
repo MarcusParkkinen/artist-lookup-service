@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using ArtistLookupService.External_Service_Clients;
@@ -20,22 +21,26 @@ namespace ArtistLookupService.UnitTest.External_Service_Clients
         private readonly Mock<IHttpClientWrapper> _mockedHttpClient;
         private readonly Mock<IErrorLogger> _mockedLogger;
         private readonly Mock<IDescriptionService> _mockedDescriptionService;
+        private readonly Mock<ICoverArtUrlService> _mockedCoverArtUrlService;
+        private readonly string _mbid;
 
         public MusicBrainzArtistServiceTests()
         {
             _fixture = new Fixture();
 
             _mockedHttpClient = new Mock<IHttpClientWrapper>();
-
-            var mockedCoverArtUrlService = new Mock<ICoverArtUrlService>();
+            _mockedCoverArtUrlService = new Mock<ICoverArtUrlService>();
             _mockedDescriptionService = new Mock<IDescriptionService>();
             _mockedLogger = new Mock<IErrorLogger>();
+            _mbid = _fixture.Create<string>();
 
             SetupDescriptionServiceMockResponse();
+            SetupCoverArtUrlServiceMockResponse();
+            SetupHttpClientMockResponse(HttpStatusCode.OK, _mbid);
 
             _sut = new MusicBrainzService(_mockedHttpClient.Object,
                 _mockedDescriptionService.Object,
-                mockedCoverArtUrlService.Object,
+                _mockedCoverArtUrlService.Object,
                 _mockedLogger.Object);
         }
 
@@ -72,23 +77,55 @@ namespace ArtistLookupService.UnitTest.External_Service_Clients
         [Fact]
         public void GetAsync_Deserializes_Json_Response_From_MusicBrainz_Into_Artist()
         {
-            var mbid = _fixture.Create<string>();
-            SetupHttpClientMockResponse(HttpStatusCode.OK, mbid);
-
-            var artist = _sut.GetAsync(mbid).Result;
+            var artist = _sut.GetAsync(_mbid).Result;
 
             artist.Should().NotBeNull();
         }
 
         [Fact]
-        public void GetAsync_Populates_The_Artist_Description_With_Result_From_Wikipedia()
+        public void GetAsync_Populates_The_Artist_Description_With_Result_From_DescriptionService()
         {
-            var mbid = _fixture.Create<string>();
-            SetupHttpClientMockResponse(HttpStatusCode.OK, mbid);
-
-            var artist = _sut.GetAsync(mbid).Result;
+            var artist = _sut.GetAsync(_mbid).Result;
 
             artist.Description.Should().NotBeNullOrEmpty();
+        }
+
+        [Fact]
+        public void GetAsync_Uses_Null_As_Description_On_Exception_From_DescriptionService()
+        {
+            _mockedDescriptionService.Setup(m => m.GetAsync(It.IsAny<string>())).Throws<Exception>();
+
+            var artist = _sut.GetAsync(_mbid).Result;
+
+            artist.Description.Should().BeNull();
+        }
+
+        [Fact]
+        public void GetAsync_Populates_Cover_Art_Uris()
+        {
+            var artist = _sut.GetAsync(_mbid).Result;
+
+            artist.Albums.ForEach(album => album.CoverArtUrl.Should().NotBeNullOrEmpty());
+        }
+
+        [Fact]
+        public void GetAsync_Uses_Null_As_Cover_Art_Uri_On_Exception_From_CoverArtUriService()
+        {
+            _mockedCoverArtUrlService.Setup(m => m.GetAsync(It.IsAny<string>())).Throws<Exception>();
+
+            var artist = _sut.GetAsync(_mbid).Result;
+
+            artist.Albums.ForEach(album => album.CoverArtUrl.Should().BeNull());
+        }
+
+        [Fact]
+        public void GetAsync_Logs_Errors_Occurring_When_Attempting_To_Populate_Album_Cover_Art_Uris()
+        {
+            _mockedCoverArtUrlService.Setup(m => m.GetAsync(It.IsAny<string>())).Throws<Exception>();
+
+            var artist = _sut.GetAsync(_mbid).Result;
+
+            _mockedLogger.Verify(m => m.Log(It.IsAny<string>()), Times.Exactly(artist.Albums.Count));
         }
 
         private void SetupDescriptionServiceMockResponse()
@@ -102,6 +139,12 @@ namespace ArtistLookupService.UnitTest.External_Service_Clients
             var httpResponseMessage = new HttpResponseMessage().PopulatedWith(httpStatusCode, CreateExampleJsonResponse(mbid));
 
             _mockedHttpClient.Setup(m => m.GetAsync(It.IsAny<string>())).Returns(Task.FromResult(httpResponseMessage));
+        }
+
+        private void SetupCoverArtUrlServiceMockResponse()
+        {
+            var coverArtUrl = _fixture.Create<string>();
+            _mockedCoverArtUrlService.Setup(m => m.GetAsync(It.IsAny<string>())).Returns(Task.FromResult(coverArtUrl));
         }
 
         private static string CreateExampleJsonResponse(string mbid)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace ArtistLookupService.External_Service_Clients
     {
         private readonly IHttpClientWrapper _client;
         private readonly IDescriptionService _descriptionService;
+        private readonly ICoverArtUrlService _coverArtUrlService;
         private readonly IErrorLogger _logger;
 
         private const string Uri = "http://musicbrainz.org/ws/2/artist/"; // Include trailing '/'
@@ -26,6 +28,7 @@ namespace ArtistLookupService.External_Service_Clients
         {
             _client = httpClient;
             _descriptionService = descriptionService;
+            _coverArtUrlService = coverArtUrlService;
             _logger = logger;
             _client.BaseAddress = new Uri(Uri);
         }
@@ -56,14 +59,28 @@ namespace ArtistLookupService.External_Service_Clients
         private void PopulateAdditionalDetails(Artist artist)
         {
             var populateDescriptionTask = PopulateDescription(artist);
-            //var populateAlbumCoversTask = PopulateAlbumCovers(artist);
+            var populateAlbumCoversTask = PopulateAlbumCovers(artist);
 
-            Task.WaitAll(populateDescriptionTask);
+            Task.WaitAll(populateDescriptionTask, populateAlbumCoversTask);
         }
 
-        private static async Task PopulateAlbumCovers(Artist artist)
+        private async Task PopulateAlbumCovers(Artist artist)
         {
-            throw new NotImplementedException();
+            await Task.WhenAll(artist.Albums.Select(PopulateAlbumCover).ToArray());
+        }
+
+        private async Task PopulateAlbumCover(Album album)
+        {
+            try
+            {
+                var coverArtUrl = await _coverArtUrlService.GetAsync(album.Id);
+
+                album.CoverArtUrl = coverArtUrl;
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(ex.Message);
+            }
         }
 
         private static async Task<Artist> DeserializeContent(HttpResponseMessage response)
@@ -80,9 +97,16 @@ namespace ArtistLookupService.External_Service_Clients
 
         private async Task PopulateDescription(Artist artist)
         {
-            var description = await _descriptionService.GetAsync(artist.WikipediaUri);
+            try
+            {
+                var description = await _descriptionService.GetAsync(artist.WikipediaUri);
 
-            artist.Description = description;
+                artist.Description = description;
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(ex.Message);
+            }
         }
     }
 }
