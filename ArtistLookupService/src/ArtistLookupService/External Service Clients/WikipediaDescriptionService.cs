@@ -13,6 +13,8 @@ namespace ArtistLookupService.External_Service_Clients
 {
     public class WikipediaDescriptionService : IDescriptionService
     {
+        private const string WikipediaUri = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&redirects=true&titles=";
+
         private readonly IHttpClientWrapper _httpClient;
         private readonly IErrorLogger _logger;
 
@@ -62,7 +64,5 @@ namespace ArtistLookupService.External_Service_Clients
 
             return $"{WikipediaUri}{identifier}";
         }
-
-        private const string WikipediaUri = "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&redirects=true&titles=";
     }
 }

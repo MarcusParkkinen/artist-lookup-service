@@ -14,12 +14,12 @@ namespace ArtistLookupService.External_Service_Clients
 {
     public class MusicBrainzService : IArtistDetailsService
     {
+        private const string Uri = "http://musicbrainz.org/ws/2/artist/"; // Include trailing '/'
+
         private readonly IHttpClientWrapper _client;
         private readonly IDescriptionService _descriptionService;
         private readonly ICoverArtUrlService _coverArtUrlService;
         private readonly IErrorLogger _logger;
-
-        private const string Uri = "http://musicbrainz.org/ws/2/artist/"; // Include trailing '/'
 
         public MusicBrainzService(IHttpClientWrapper httpClient,
             IDescriptionService descriptionService,

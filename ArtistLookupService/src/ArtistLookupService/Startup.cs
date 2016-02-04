@@ -34,7 +34,7 @@ namespace ArtistLookupService
             services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
             services.AddTransient<IArtistDetailsService, MusicBrainzService>();
             services.AddTransient<IDescriptionService, WikipediaDescriptionService>();
-            services.AddTransient<ICoverArtUrlService, CoverArtUrlService>();
+            services.AddTransient<ICoverArtUrlService, CoverArtArchiveService>();
 
             /*
              * In a "real world" scenario, we would instead use ILogger with a Log4net implementation or similar. Not used

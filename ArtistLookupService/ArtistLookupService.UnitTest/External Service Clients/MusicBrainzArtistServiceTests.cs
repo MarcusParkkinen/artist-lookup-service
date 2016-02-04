@@ -51,10 +51,9 @@ namespace ArtistLookupService.UnitTest.External_Service_Clients
         [InlineData(HttpStatusCode.ServiceUnavailable)]
         public void GetAsync_Returns_Null_On_Non_200_Response_From_MusicBrainz(HttpStatusCode httpStatusCode)
         {
-            var mbid = _fixture.Create<string>();
-            SetupHttpClientMockResponse(httpStatusCode, mbid);
+            SetupHttpClientMockResponse(httpStatusCode, _mbid);
 
-            var artist = _sut.GetAsync(mbid).Result;
+            var artist = _sut.GetAsync(_mbid).Result;
 
             artist.Should().BeNull();
         }
@@ -66,10 +65,9 @@ namespace ArtistLookupService.UnitTest.External_Service_Clients
         [InlineData(HttpStatusCode.ServiceUnavailable)]
         public void GetAsync_Logs_Error_On_Non_200_Response_From_MusicBrainz(HttpStatusCode httpStatusCode)
         {
-            var mbid = _fixture.Create<string>();
-            SetupHttpClientMockResponse(httpStatusCode, mbid);
+            SetupHttpClientMockResponse(httpStatusCode, _mbid);
 
-            _sut.GetAsync(mbid).Wait();
+            _sut.GetAsync(_mbid).Wait();
 
             _mockedLogger.Verify(m => m.Log(It.IsAny<string>()), Times.Once());
         }
@@ -137,7 +135,6 @@ namespace ArtistLookupService.UnitTest.External_Service_Clients
         private void SetupHttpClientMockResponse(HttpStatusCode httpStatusCode, string mbid)
         {
             var httpResponseMessage = new HttpResponseMessage().PopulatedWith(httpStatusCode, CreateExampleJsonResponse(mbid));
-
             _mockedHttpClient.Setup(m => m.GetAsync(It.IsAny<string>())).Returns(Task.FromResult(httpResponseMessage));
         }
 

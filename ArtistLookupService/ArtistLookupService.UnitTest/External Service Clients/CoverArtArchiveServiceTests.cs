@@ -13,57 +13,54 @@ using Xunit;
 
 namespace ArtistLookupService.UnitTest.External_Service_Clients
 {
-    public class WikipediaDescriptionServiceTests
+    public class CoverArtArchiveServiceTests
     {
         private readonly Fixture _fixture;
         private readonly Mock<IHttpClientWrapper> _mockedHttpClient;
         private readonly Mock<IErrorLogger> _mockedLogger;
 
-        private readonly WikipediaDescriptionService _sut;
+        private readonly CoverArtArchiveService _sut;
+        private string _albumId;
 
-        public WikipediaDescriptionServiceTests()
+        public CoverArtArchiveServiceTests()
         {
             _fixture = new Fixture();
 
+            _albumId = _fixture.Create<string>();
             _mockedHttpClient = new Mock<IHttpClientWrapper>();
             _mockedLogger = new Mock<IErrorLogger>();
 
-            _sut = new WikipediaDescriptionService(_mockedHttpClient.Object, _mockedLogger.Object);
+            SetupHttpClientMockResponse(HttpStatusCode.OK, ExampleJsonResponse);
+
+            _sut = new CoverArtArchiveService(_mockedHttpClient.Object, _mockedLogger.Object);
         }
 
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public void GetAsync_Returns_Null_When_Provided_With_Invalid_Uri(string invalidWikipediaDescriptionUri)
+        public void GetAsync_Returns_Null_When_Provided_With_A_Non_Existing_Album_Id(string invalidAlbumId)
         {
-            var description = _sut.GetAsync(invalidWikipediaDescriptionUri).Result;
+            var coverArtUri = _sut.GetAsync(invalidAlbumId).Result;
 
-            description.Should().BeNull();
+            coverArtUri.Should().BeNull();
         }
 
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public void GetAsync_Logs_An_Error_If_Provided_Uri_Is_Invalid(string invalidWikipediaDescriptionUri)
+        public void GetAsync_Logs_An_Error_If_Provided_Album_Id_Is_Invalid(string invalidAlbumId)
         {
-            _sut.GetAsync(invalidWikipediaDescriptionUri).Wait();
+            _sut.GetAsync(invalidAlbumId).Wait();
 
             _mockedLogger.Verify(m => m.Log(It.IsAny<Exception>()), Times.Once());
         }
 
-        [Theory]
-        [InlineData(HttpStatusCode.Forbidden)]
-        [InlineData(HttpStatusCode.InternalServerError)]
-        [InlineData(HttpStatusCode.NotFound)]
-        [InlineData(HttpStatusCode.ServiceUnavailable)]
-        public void GetAsync_Returns_Null_On_Non_200_Response_From_Wikipedia(HttpStatusCode httpStatusCode)
+        [Fact]
+        public void GetAsync_Deserializes_Json_Response_From_Cover_Art_Archive_Into_Album_Cover_Art_Uri()
         {
-            var uri = _fixture.Create<string>();
-            SetupHttpClientMockResponse(httpStatusCode, ExampleJsonResponse);
+            var coverArtUri = _sut.GetAsync(_albumId).Result;
 
-            var description = _sut.GetAsync(uri).Result;
-
-            description.Should().BeNull();
+            coverArtUri.Should().NotBeNullOrEmpty();
         }
 
         [Theory]
@@ -71,35 +68,39 @@ namespace ArtistLookupService.UnitTest.External_Service_Clients
         [InlineData(HttpStatusCode.InternalServerError)]
         [InlineData(HttpStatusCode.NotFound)]
         [InlineData(HttpStatusCode.ServiceUnavailable)]
-        public void GetAsync_Logs_Error_On_Non_200_Response_From_Wikipedia(HttpStatusCode httpStatusCode)
+        public void GetAsync_Returns_Null_On_Non_200_Response_From_Cover_Art_Archive(HttpStatusCode httpStatusCode)
         {
-            var uri = _fixture.Create<string>();
+            var albumId = _fixture.Create<string>();
             SetupHttpClientMockResponse(httpStatusCode, ExampleJsonResponse);
 
-            _sut.GetAsync(uri).Wait();
+            var coverArtUrl = _sut.GetAsync(albumId).Result;
+
+            coverArtUrl.Should().BeNull();
+        }
+
+        [Theory]
+        [InlineData(HttpStatusCode.Forbidden)]
+        [InlineData(HttpStatusCode.InternalServerError)]
+        [InlineData(HttpStatusCode.NotFound)]
+        [InlineData(HttpStatusCode.ServiceUnavailable)]
+        public void GetAsync_Logs_Error_On_Non_200_Response_From_Cover_Art_Archive(HttpStatusCode httpStatusCode)
+        {
+            var albumId = _fixture.Create<string>();
+            SetupHttpClientMockResponse(httpStatusCode, ExampleJsonResponse);
+
+            _sut.GetAsync(albumId).Wait();
 
             _mockedLogger.Verify(m => m.Log(It.IsAny<string>()), Times.Once());
         }
 
         [Fact]
-        public void GetAsync_Deserializes_Json_Response_From_Wikipedia_Into_Description()
-        {
-            var uri = _fixture.Create<string>();
-            SetupHttpClientMockResponse(HttpStatusCode.OK, ExampleJsonResponse);
-
-            var description = _sut.GetAsync(uri).Result;
-
-            description.Should().NotBeNullOrEmpty();
-        }
-
-        [Fact]
         public void GetAsync_Returns_Null_If_Deserialization_Of_Response_Json_Fails()
         {
-            var uri = _fixture.Create<string>();
+            var albumId = _fixture.Create<string>();
             var invalidJsonResponse = _fixture.Create<string>();
             SetupHttpClientMockResponse(HttpStatusCode.OK, invalidJsonResponse);
 
-            var description = _sut.GetAsync(uri).Result;
+            var description = _sut.GetAsync(albumId).Result;
 
             description.Should().BeNull();
         }
@@ -110,6 +111,6 @@ namespace ArtistLookupService.UnitTest.External_Service_Clients
             _mockedHttpClient.Setup(m => m.GetAsync(It.IsAny<string>())).Returns(Task.FromResult(httpResponseMessage));
         }
 
-        private static string ExampleJsonResponse => "{\"batchcomplete\":\"\",\"query\":{\"normalized\":[{\"from\":\"Nirvana_(band)\",\"to\":\"Nirvana (band)\"}],\"pages\":{\"21231\":{\"pageid\":21231,\"ns\":0,\"title\":\"Nirvana (band)\",\"extract\":\"<p><b>Nirvana</b></p>\"}}}}";
+        private static string ExampleJsonResponse =>  "{\"images\":[{\"types\":[\"Front\"],\"front\":true,\"back\":false,\"edit\":31151246,\"image\":\"http://coverartarchive.org/release/93666902-58d7-4792-9748-9a66fdab0ea6/9422498754.jpg\",\"comment\":\"\",\"approved\":true,\"id\":\"9422498754\",\"thumbnails\":{\"large\":\"http://coverartarchive.org/release/93666902-58d7-4792-9748-9a66fdab0ea6/9422498754-500.jpg\",\"small\":\"http://coverartarchive.org/release/93666902-58d7-4792-9748-9a66fdab0ea6/9422498754-250.jpg\"}}],\"release\":\"http://musicbrainz.org/release/93666902-58d7-4792-9748-9a66fdab0ea6\"}";
     }
 }
