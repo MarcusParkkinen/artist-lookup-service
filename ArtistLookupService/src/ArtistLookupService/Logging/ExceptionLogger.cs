@@ -12,5 +12,9 @@ namespace ArtistLookupService.Logging
         public void Log(Exception ex)
         {
         }
+
+        public void Log(string message)
+        {
+        }
     }
 }

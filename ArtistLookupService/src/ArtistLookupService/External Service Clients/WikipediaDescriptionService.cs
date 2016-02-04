@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using ArtistLookupService.Converters;
@@ -23,18 +24,17 @@ namespace ArtistLookupService.External_Service_Clients
 
         public async Task<string> GetAsync(string uri)
         {
-            if (string.IsNullOrEmpty(uri))
-            {
-                return null;
-            }
-
             try
             {
                 var transformedUri = TransformUri(uri);
                 var response = await _httpClient.GetAsync(transformedUri);
-                var description = await DeserializeContent(response);
 
-                return description;
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return await DeserializeContent(response);
+                }
+
+                _logger.Log($"Error: attempt to retrieve artist description from Wikipedia failed: {response.StatusCode} - {response.ReasonPhrase}");
             }
             catch (Exception ex)
             {
@@ -53,6 +53,11 @@ namespace ArtistLookupService.External_Service_Clients
 
         private static string TransformUri(string uri)
         {
+            if (string.IsNullOrEmpty(uri))
+            {
+                throw new ArgumentException($"Description Uri cannot be null or empty.");
+            }
+
             var identifier = uri.Split('/').Last();
 
             return $"{WikipediaUri}{identifier}";

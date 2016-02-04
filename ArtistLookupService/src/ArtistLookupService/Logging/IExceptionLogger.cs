@@ -7,5 +7,6 @@ namespace ArtistLookupService.Logging
     {
         void Log(HttpRequest request, Exception ex);
         void Log(Exception ex);
+        void Log(string message);
     }
 }

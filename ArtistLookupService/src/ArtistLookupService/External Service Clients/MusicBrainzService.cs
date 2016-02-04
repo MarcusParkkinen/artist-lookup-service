@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using ArtistLookupService.Converters;
 using ArtistLookupService.External_Service_Interfaces;
+using ArtistLookupService.Logging;
 using ArtistLookupService.Model;
 using ArtistLookupService.Wrappers;
 using Newtonsoft.Json;
@@ -14,15 +15,18 @@ namespace ArtistLookupService.External_Service_Clients
     {
         private readonly IHttpClientWrapper _client;
         private readonly IDescriptionService _descriptionService;
+        private readonly IExceptionLogger _logger;
 
         private const string Uri = "http://musicbrainz.org/ws/2/artist/"; // Include trailing '/'
 
         public MusicBrainzService(IHttpClientWrapper httpClient,
             IDescriptionService descriptionService,
-            ICoverArtUrlService coverArtUrlService)
+            ICoverArtUrlService coverArtUrlService,
+            IExceptionLogger logger)
         {
             _client = httpClient;
             _descriptionService = descriptionService;
+            _logger = logger;
             _client.BaseAddress = new Uri(Uri);
         }
 
@@ -38,6 +42,7 @@ namespace ArtistLookupService.External_Service_Clients
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
+                _logger.Log($"Error: attempt to retrieve artist details from MusicBrainz failed: {response.StatusCode} - {response.ReasonPhrase}");
                 return null;
             }
 
