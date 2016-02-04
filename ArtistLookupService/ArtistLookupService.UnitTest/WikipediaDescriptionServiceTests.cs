@@ -17,7 +17,7 @@ namespace ArtistLookupService.UnitTest
     {
         private readonly Fixture _fixture;
         private readonly Mock<IHttpClientWrapper> _mockedHttpClient;
-        private readonly Mock<IExceptionLogger> _mockedLogger;
+        private readonly Mock<IErrorLogger> _mockedLogger;
 
         private readonly WikipediaDescriptionService _sut;
 
@@ -26,7 +26,7 @@ namespace ArtistLookupService.UnitTest
             _fixture = new Fixture();
 
             _mockedHttpClient = new Mock<IHttpClientWrapper>();
-            _mockedLogger = new Mock<IExceptionLogger>();
+            _mockedLogger = new Mock<IErrorLogger>();
 
             _sut = new WikipediaDescriptionService(_mockedHttpClient.Object, _mockedLogger.Object);
         }

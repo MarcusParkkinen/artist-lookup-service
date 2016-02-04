@@ -5,16 +5,16 @@ namespace ArtistLookupService.Filters
 {
     public class LogExceptionFilter : ExceptionFilterAttribute
     {
-        private readonly IExceptionLogger _exceptionLogger;
+        private readonly IErrorLogger _errorLogger;
 
-        public LogExceptionFilter(IExceptionLogger exceptionLogger)
+        public LogExceptionFilter(IErrorLogger errorLogger)
         {
-            _exceptionLogger = exceptionLogger;
+            _errorLogger = errorLogger;
         }
 
         public override void OnException(ExceptionContext context)
         {
-            _exceptionLogger.Log(context.HttpContext.Request, context.Exception);
+            _errorLogger.Log(context.HttpContext.Request, context.Exception);
 
             base.OnException(context);
         }

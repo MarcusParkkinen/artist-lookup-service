@@ -32,7 +32,12 @@ namespace ArtistLookupService
             services.AddTransient<IArtistDetailsService, MusicBrainzService>();
             services.AddTransient<IDescriptionService, WikipediaDescriptionService>();
             services.AddTransient<ICoverArtUrlService, CoverArtUrlService>();
-            services.AddTransient<IExceptionLogger, ExceptionLogger>();
+
+            /*
+             * In a "real world" scenario, we would instead use ILogger with a Log4net implementation or similar. Not used
+             * here due to time restrictions.
+             */
+            services.AddTransient<IErrorLogger, ConsoleLogger>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

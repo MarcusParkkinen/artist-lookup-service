@@ -14,9 +14,9 @@ namespace ArtistLookupService.External_Service_Clients
     public class WikipediaDescriptionService : IDescriptionService
     {
         private readonly IHttpClientWrapper _httpClient;
-        private readonly IExceptionLogger _logger;
+        private readonly IErrorLogger _logger;
 
-        public WikipediaDescriptionService(IHttpClientWrapper httpClient, IExceptionLogger logger)
+        public WikipediaDescriptionService(IHttpClientWrapper httpClient, IErrorLogger logger)
         {
             _httpClient = httpClient;
             _logger = logger;

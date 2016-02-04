@@ -21,14 +21,14 @@ namespace ArtistLookupService.Test
         private readonly Fixture _fixture;
 
         private readonly Mock<IArtistDetailsService> _mockedArtistService;
-        private readonly Mock<IExceptionLogger> _mockedExceptionLogger;
+        private readonly Mock<IErrorLogger> _mockedErrorLogger;
 
         public ArtistLookupControllerComponentTests()
         {
             _fixture = new Fixture();
 
             _mockedArtistService = new Mock<IArtistDetailsService>();
-            _mockedExceptionLogger = new Mock<IExceptionLogger>();
+            _mockedErrorLogger = new Mock<IErrorLogger>();
 
             _mockedArtistService.Setup(m => m.Get(It.IsAny<string>())).Returns(_fixture.Create<Artist>());
         }
@@ -64,7 +64,7 @@ namespace ArtistLookupService.Test
 
             await client.GetAsync($"{Uri}/{mbid}");
 
-            _mockedExceptionLogger.Verify(m => m.Log(It.IsAny<HttpRequest>(), It.IsAny<Exception>()), Times.Once());
+            _mockedErrorLogger.Verify(m => m.Log(It.IsAny<HttpRequest>(), It.IsAny<Exception>()), Times.Once());
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace ArtistLookupService.Test
         private TestServer CreateTestServer()
         {
             return TestServerFactory.CreateTestServerWith(_mockedArtistService.Object,
-                _mockedExceptionLogger.Object);
+                _mockedErrorLogger.Object);
         }
     }
 }

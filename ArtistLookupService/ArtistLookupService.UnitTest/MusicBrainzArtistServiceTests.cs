@@ -17,7 +17,7 @@ namespace ArtistLookupService.UnitTest
         private readonly MusicBrainzService _sut;
         private readonly Fixture _fixture;
         private readonly Mock<IHttpClientWrapper> _mockedHttpClient;
-        private readonly Mock<IExceptionLogger> _mockedLogger;
+        private readonly Mock<IErrorLogger> _mockedLogger;
 
         public MusicBrainzArtistServiceTests()
         {
@@ -27,7 +27,7 @@ namespace ArtistLookupService.UnitTest
 
             var mockedDescriptionService = new Mock<IDescriptionService>();
             var mockedCoverArtUrlService = new Mock<ICoverArtUrlService>();
-            _mockedLogger = new Mock<IExceptionLogger>();
+            _mockedLogger = new Mock<IErrorLogger>();
 
             _sut = new MusicBrainzService(_mockedHttpClient.Object,
                 mockedDescriptionService.Object,
