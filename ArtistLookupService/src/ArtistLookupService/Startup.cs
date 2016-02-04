@@ -8,6 +8,7 @@ using Microsoft.AspNet.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.SwaggerGen;
 
 namespace ArtistLookupService
 {
@@ -26,6 +27,8 @@ namespace ArtistLookupService
 
         public void ConfigureServices(IServiceCollection services)
         {
+            AddSwagger(services);
+
             services.AddDefaultServices();
 
             services.AddTransient<IHttpClientWrapper, HttpClientWrapper>();
@@ -40,9 +43,27 @@ namespace ArtistLookupService
             services.AddTransient<IErrorLogger, ConsoleLogger>();
         }
 
+        private static void AddSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen();
+            services.ConfigureSwaggerDocument(options =>
+            {
+                options.SingleApiVersion(new Info
+                {
+                    Version = "v1",
+                    Title = "Artist Lookup Service",
+                    Description = "A simple mashup service for artist details lookup using a MusicBrainz ID",
+                    TermsOfService = "None"
+                });
+            });
+        }
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseDefaultConfiguration();
+            app.UseStaticFiles();
+            app.UseSwaggerGen();
+            app.UseSwaggerUi();
         }
 
         // Entry point for the application.
